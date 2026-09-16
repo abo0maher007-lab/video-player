@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل الفيديوهات الشامل</title>
+    <title>مشغل الفيديوهات المباشر</title>
     <style>
         body {
             font-family: Tahoma, sans-serif;
@@ -65,83 +65,63 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: aspect-ratio 0.3s ease;
         }
         video {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
     </style>
 </head>
 <body>
 
-    <h1>مشغل الفيديوهات الشامل</h1>
+    <h1>مشغل الفيديوهات المباشر</h1>
     
     <div class="input-container">
-        <input type="text" id="videoUrl" placeholder="الصق الرابط هنا..." value="https://b2.shahidtv.net/files/TR/Alikara/Alikara-S01-EP001-720p.mp4">
+        <input type="text" id="videoUrl" placeholder="الصق رابط الفيديو المباشر (.mp4) هنا..." value="https://www.w3schools.com/html/mov_bbb.mp4">
         
         <div class="btn-group">
-            <button class="btn-play" onclick="handleVideoLoad()">تشغيل الفيديو</button>
-            <a id="downloadBtn" class="btn-download" href="https://b2.shahidtv.net/files/TR/Alikara/Alikara-S01-EP001-720p.mp4" download target="_blank">تحميل الفيديو</a>
+            <button class="btn-play" onclick="loadVideo()">تشغيل الفيديو</button>
+            <a id="downloadBtn" class="btn-download" href="https://www.w3schools.com/html/mov_bbb.mov" download target="_blank">تحميل الفيديو</a>
         </div>
     </div>
 
     <div class="video-container" id="videoContainer">
         <video id="myVideo" controls>
-            <source id="videoSource" src="https://b2.shahidtv.net/files/TR/Alikara/Alikara-S01-EP001-720p.mp4" type="video/mp4">
+            <source id="videoSource" src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
             متصفحك لا يدعم تشغيل الفيديو.
         </video>
     </div>
 
     <script>
+        const videoElement = document.getElementById("myVideo");
         const videoContainer = document.getElementById("videoContainer");
         const downloadBtn = document.getElementById("downloadBtn");
 
-        function handleVideoLoad() {
-            let urlInput = document.getElementById("videoUrl").value.trim();
-
-            if (urlInput === "") {
-                alert("الرجاء إدخال رابط أولاً!");
-                return;
+        // ضبط الأبعاد تلقائياً حسب الفيديو (طولي أم عرضي)
+        videoElement.addEventListener('loadedmetadata', function() {
+            const width = videoElement.videoWidth;
+            const height = videoElement.videoHeight;
+            if (width && height) {
+                videoContainer.style.aspectRatio = `${width} / ${height}`;
             }
+        });
 
-            downloadBtn.href = urlInput;
+        function loadVideo() {
+            var urlInput = document.getElementById("videoUrl").value.trim();
+            var sourceElement = document.getElementById("videoSource");
 
-            // إذا كان الرابط لتيك توك
-            if (urlInput.includes("tiktok.com")) {
-                videoContainer.style.aspectRatio = "9 / 16"; // أبعاد طولية
-                
-                // استخراج معرف الفيديو من رابط تيك توك بشكل مباشر
-                let videoId = "";
-                if (urlInput.includes("/video/")) {
-                    videoId = urlInput.split("/video/")[1].split("?")[0];
-                }
-                
-                if (videoId) {
-                    // استخدام التضمين المباشر عبر iframe الخاص بتيك توك لتجنب مشاكل الاتصال
-                    videoContainer.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${videoId}" allowfullscreen></iframe>`;
-                } else {
-                    // إذا كان الرابط مختصراً جداً، نقوم بعرضه عبر iframe مباشر للموقع
-                    videoContainer.innerHTML = `<iframe src="${urlInput}" allowfullscreen></iframe>`;
-                }
-            } else {
-                // للروابط المباشرة (مثل MP4)
-                videoContainer.style.aspectRatio = "16 / 9";
-                videoContainer.innerHTML = `
-                    <video id="myVideo" controls autoplay>
-                        <source id="videoSource" src="${urlInput}" type="video/mp4">
-                        متصفحك لا يدعم تشغيل الفيديو.
-                    </video>
-                `;
-                const newVideo = document.getElementById("myVideo");
-                newVideo.addEventListener('loadedmetadata', function() {
-                    videoContainer.style.aspectRatio = `${newVideo.videoWidth} / ${newVideo.videoHeight}`;
+            if (urlInput !== "") {
+                sourceElement.src = urlInput;
+                videoElement.load();
+                downloadBtn.href = urlInput;
+
+                videoElement.play().catch(error => {
+                    console.log("التشغيل التلقائي محظور، يرجى الضغط يدويًا.");
                 });
+            } else {
+                alert("الرجاء إدخال رابط صحيح أولاً!");
             }
         }
     </script>
