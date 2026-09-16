@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشغل الفيديوهات الشامل</title>
+    <style>
+        body {
+            font-family: Tahoma, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .input-container {
+            margin: 20px auto;
+            max-width: 650px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            outline: none;
+            background: #222;
+            color: #fff;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            direction: ltr;
+            text-align: left;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button, .btn-download {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-play { background-color: #cc0000; }
+        .btn-download { background-color: #28a745; }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            margin: 20px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>مشغل الفيديوهات الشامل</h1>
+    
+    <div class="input-container">
+        <input type="text" id="videoUrl" placeholder="الصق الرابط هنا..." value="https://b2.shahidtv.net/files/TR/Alikara/Alikara-S01-EP001-720p.mp4">
+        
+        <div class="btn-group">
+            <button class="btn-play" onclick="handleVideoLoad()">تشغيل الفيديو</button>
+            <a id="downloadBtn" class="btn-download" href="https://b2.shahidtv.net/files/TR/Alikara/Alikara-S01-EP001-720p.mp4" download target="_blank">تحميل الفيديو</a>
+        </div>
+    </div>
+
+    <div class="video-container" id="videoContainer">
+        <video id="myVideo" controls>
+            <source id="videoSource" src="https://b2.shahidtv.net/files/TR/Alikara/Alikara-S01-EP001-720p.mp4" type="video/mp4">
+            متصفحك لا يدعم تشغيل الفيديو.
+        </video>
+    </div>
+
+    <script>
+        const videoContainer = document.getElementById("videoContainer");
+        const downloadBtn = document.getElementById("downloadBtn");
+
+        function handleVideoLoad() {
+            let urlInput = document.getElementById("videoUrl").value.trim();
+
+            if (urlInput === "") {
+                alert("الرجاء إدخال رابط أولاً!");
+                return;
+            }
+
+            downloadBtn.href = urlInput;
+
+            // إذا كان الرابط لتيك توك
+            if (urlInput.includes("tiktok.com")) {
+                videoContainer.style.aspectRatio = "9 / 16"; // أبعاد طولية
+                
+                // استخراج معرف الفيديو من رابط تيك توك بشكل مباشر
+                let videoId = "";
+                if (urlInput.includes("/video/")) {
+                    videoId = urlInput.split("/video/")[1].split("?")[0];
+                }
+                
+                if (videoId) {
+                    // استخدام التضمين المباشر عبر iframe الخاص بتيك توك لتجنب مشاكل الاتصال
+                    videoContainer.innerHTML = `<iframe src="https://www.tiktok.com/embed/v2/${videoId}" allowfullscreen></iframe>`;
+                } else {
+                    // إذا كان الرابط مختصراً جداً، نقوم بعرضه عبر iframe مباشر للموقع
+                    videoContainer.innerHTML = `<iframe src="${urlInput}" allowfullscreen></iframe>`;
+                }
+            } else {
+                // للروابط المباشرة (مثل MP4)
+                videoContainer.style.aspectRatio = "16 / 9";
+                videoContainer.innerHTML = `
+                    <video id="myVideo" controls autoplay>
+                        <source id="videoSource" src="${urlInput}" type="video/mp4">
+                        متصفحك لا يدعم تشغيل الفيديو.
+                    </video>
+                `;
+                const newVideo = document.getElementById("myVideo");
+                newVideo.addEventListener('loadedmetadata', function() {
+                    videoContainer.style.aspectRatio = `${newVideo.videoWidth} / ${newVideo.videoHeight}`;
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
